@@ -4,6 +4,26 @@ import { WS_BASE_URL } from '../config'
 import { authenticateSymbl } from '../api/symbl';
 import { v4 as uuid } from 'uuid';
 
+const processFactCheck = async (transcript) => {
+    try {
+        const response = await fetch('http://localhost:8000/generate-completion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_message: transcript }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`http response error: status - ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error in processFactCheck:", error);
+        return null;
+    }
+};
+
 async function initAudioStream(websocket) {
     const micInputStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
@@ -33,7 +53,9 @@ async function initAudioStream(websocket) {
 }
 
 const WebSocket = ({ socketUrl }) => {
-    const [messageHistory, setMessageHistory] = useState([]);
+    const [liveCaption, setLiveCaption] = useState('')
+    const [transcription, setTranscription] = useState([]);
+    const [factChecks, setFactChecks] = useState([]);
 
     const {
         sendMessage,
@@ -85,10 +107,35 @@ const WebSocket = ({ socketUrl }) => {
 
     useEffect(() => {
         if (lastMessage !== null) {
-            setMessageHistory((prev) => prev.concat(lastMessage));
-        }
-    }, [lastMessage, setMessageHistory]);
+            const data = JSON.parse(lastMessage.data);
+            if (data && data.message && data.message.type === 'recognition_result') {
+                const transcribedText = data.message.payload.raw.alternatives[0].transcript
+                console.log('this is transcribed text', transcribedText)
+                setLiveCaption(transcribedText);
+            }
 
+            if (data && data.type === 'message_response') {
+                console.log('i am hit', data)
+                console.log('message_response', data.messages[0].payload.content);
+
+                let text = '';
+                data.messages.forEach(message => {
+                    text = text.concat(message.payload.content)
+                })
+                console.log('this is text', text)
+                setTranscription(prev => prev.concat(text))
+                const res = processFactCheck(text);
+                console.log('this is res', res)
+                res.then(result => {
+                    console.log('result', result)
+                    setFactChecks(prev => prev.concat(result))
+                })
+            }
+
+            // console.log('data is coming in', data)
+            // setTranscription((prev) => prev.concat(data));
+        }
+    }, [lastMessage, setTranscription]);
 
     const connectionStatus = {
         [ReadyState.CONNECTING]: 'Connecting',
@@ -100,17 +147,21 @@ const WebSocket = ({ socketUrl }) => {
 
     return (
         <div>
-            <button
-                onClick={initAudioStream}
-                disabled={readyState !== ReadyState.OPEN}
-            >
-                Click Me to send 'Hello'
-            </button>
             <span>The WebSocket is currently {connectionStatus}</span>
-            {lastMessage ? <span>Last message: {lastMessage.data}</span> : null}
+            <h2>Live Caption</h2>
+            <ul>{liveCaption}</ul>
+
+            <h2>Transcript</h2>
             <ul>
-                {messageHistory.map((message, idx) => (
-                    <span key={idx}>{message ? message.data : null}</span>
+                {transcription.map((message, idx) => (
+                    <span key={idx}>{message}</span>
+                ))}
+            </ul>
+
+            <h2>Fact Checks</h2>
+            <ul>
+                {factChecks.map((factCheck, idx) => (
+                    <div key={idx}>{JSON.stringify(factCheck)}</div>
                 ))}
             </ul>
         </div>
