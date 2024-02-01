@@ -161,7 +161,11 @@ const WebSocket = ({ socketUrl }) => {
             <h2>Fact Checks</h2>
             <ul>
                 {factChecks.map((factCheck, idx) => (
-                    <div key={idx}>{JSON.stringify(factCheck)}</div>
+                    <div key={idx} style={{ borderRadius: '20px', border: '1px solid black', padding: '24px', margin: '32px' }}>
+                        <div>User Input: <i>"{factCheck.user_input}"</i></div>
+                        <br />
+                        <div>OpenAI Output: <b>{factCheck.openai_response}</b></div>
+                    </div>
                 ))}
             </ul>
         </div>
