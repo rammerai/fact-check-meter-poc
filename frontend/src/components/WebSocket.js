@@ -3,6 +3,7 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { WS_BASE_URL } from '../config'
 import { authenticateSymbl } from '../api/symbl';
 import { v4 as uuid } from 'uuid';
+import "./factChecker.css";
 
 const processFactCheck = async (transcript) => {
     try {
@@ -148,26 +149,33 @@ const WebSocket = ({ socketUrl }) => {
     return (
         <div>
             <span>The WebSocket is currently {connectionStatus}</span>
-            <h2>Live Caption</h2>
-            <ul>{liveCaption}</ul>
+            <div className={"page-container"}>
+                <div className={"messages-container"}>
+                    <h2>Live Caption</h2>
+                    <ul>{liveCaption}</ul>
 
-            <h2>Transcript</h2>
-            <ul>
-                {transcription.map((message, idx) => (
-                    <span key={idx}>{message}</span>
-                ))}
-            </ul>
-
-            <h2>Fact Checks</h2>
-            <ul>
-                {factChecks.map((factCheck, idx) => (
-                    <div key={idx} style={{ borderRadius: '20px', border: '1px solid black', padding: '24px', margin: '32px' }}>
-                        <div>User Input: <i>"{factCheck && factCheck.user_input}"</i></div>
-                        <br />
-                        <div>OpenAI Output: <b>{factCheck && factCheck.openai_response}</b></div>
+                    <h2>Transcript</h2>
+                    <div className={"transcription"}>
+                        {transcription.map((message, idx) => (
+                            <p key={idx}>{message}</p>
+                        ))}
                     </div>
-                ))}
-            </ul>
+                </div>
+
+                <div className={"open-ai-response"}>
+                <h2>Fact Checks</h2>
+                <ul>
+                    {factChecks.map((factCheck, idx) => (
+                        <div key={idx}
+                             style={{borderRadius: '20px', border: '1px solid black', padding: '24px', margin: '32px'}}>
+                            <div>User Input: <i>"{factCheck && factCheck.user_input}"</i></div>
+                            <br/>
+                            <div>OpenAI Output: <b>{factCheck && factCheck.openai_response}</b></div>
+                        </div>
+                    ))}
+                </ul>
+                </div>
+            </div>
         </div>
     );
 };

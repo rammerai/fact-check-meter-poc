@@ -1,0 +1,48 @@
+.page-container {
+    display: flex;
+    margin: 1vh 2vw;
+}
+
+.page-container .messages-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-right: 1px solid #E2E8F0;
+    min-height: 78vh;
+    margin: 24px 0;
+    padding-right: 12px;
+}
+.page-container .messages-container .transcription {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    height: 390px;
+    overflow-y: scroll;
+    border: 1px solid #94A3B8;
+    border-radius: 12px;
+    margin-top: 12px;
+}
+
+.page-container .messages-container .transcription p {
+    margin: 12px 0 0 24px;
+    padding: 12px;
+    border: 1px solid;
+    border-radius: 11px;
+ }
+
+.page-container .open-ai-response {
+    flex: 1;
+}
+
+h1, h2 {
+    background: -webkit-linear-gradient(270deg, #DB3B5C 0%, #8937A5 46.57%, #455AC7 100%);
+    /*background: -webkit-linear-gradient(270deg, #E28A9C 0%, #D378F2 38.54%, #5A9CFF 100%);*/
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    margin: 0;
+}
